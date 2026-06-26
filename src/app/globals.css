@@ -2,25 +2,67 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0a0a0a;
+  --beacon-lime: #d9ff41;
+  --beacon-lavender: #c3c9ff;
+  --beacon-orange: #ffb01f;
+  --beacon-gray: #737373;
+  --beacon-gray-light: #f5f5f5;
+  --beacon-border: #e8e8e8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-beacon-lime: var(--beacon-lime);
+  --color-beacon-lavender: var(--beacon-lavender);
+  --color-beacon-orange: var(--beacon-orange);
+  --color-beacon-gray: var(--beacon-gray);
+  --color-beacon-gray-light: var(--beacon-gray-light);
+  --color-beacon-border: var(--beacon-border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+::selection {
+  background: var(--beacon-lime);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--beacon-lime);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
