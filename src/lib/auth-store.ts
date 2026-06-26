@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
-import { mkdir, readFile, writeFile } from "fs/promises";
-import path from "path";
+import { connectToDatabase } from "./mongodb";
 import type { SessionUser } from "./types";
 
 interface StoredUser {
@@ -12,36 +11,16 @@ interface StoredUser {
   createdAt: string;
 }
 
-const USERS_FILE = path.join(process.cwd(), ".data", "users.json");
-
-async function readUsers(): Promise<Map<string, StoredUser>> {
-  try {
-    await mkdir(path.dirname(USERS_FILE), { recursive: true });
-    const raw = await readFile(USERS_FILE, "utf-8");
-    const list = JSON.parse(raw) as StoredUser[];
-    return new Map(list.map((u) => [u.email, u]));
-  } catch {
-    return new Map();
-  }
-}
-
-async function writeUsers(users: Map<string, StoredUser>): Promise<void> {
-  await mkdir(path.dirname(USERS_FILE), { recursive: true });
-  await writeFile(
-    USERS_FILE,
-    JSON.stringify(Array.from(users.values()), null, 2),
-    "utf-8",
-  );
-}
-
 export async function createUser(
   email: string,
   password: string,
 ): Promise<SessionUser> {
   const normalized = email.trim().toLowerCase();
-  const users = await readUsers();
+  const { db } = await connectToDatabase();
+  const collection = db.collection<StoredUser>("users");
 
-  if (users.has(normalized)) {
+  const existing = await collection.findOne({ email: normalized });
+  if (existing) {
     throw new Error("An account with this email already exists.");
   }
 
@@ -56,9 +35,7 @@ export async function createUser(
     createdAt: new Date().toISOString(),
   };
 
-  users.set(normalized, user);
-  await writeUsers(users);
-
+  await collection.insertOne(user);
   return { id: user.id, email: user.email };
 }
 
@@ -67,8 +44,10 @@ export async function verifyUser(
   password: string,
 ): Promise<SessionUser | null> {
   const normalized = email.trim().toLowerCase();
-  const users = await readUsers();
-  const user = users.get(normalized);
+  const { db } = await connectToDatabase();
+  const collection = db.collection<StoredUser>("users");
+
+  const user = await collection.findOne({ email: normalized });
   if (!user?.passwordHash) return null;
 
   const valid = await bcrypt.compare(password, user.passwordHash);
@@ -83,23 +62,27 @@ export async function findOrCreateGoogleUser(
   name?: string,
 ): Promise<SessionUser> {
   const normalized = email.trim().toLowerCase();
-  const users = await readUsers();
+  const { db } = await connectToDatabase();
+  const collection = db.collection<StoredUser>("users");
 
-  for (const user of users.values()) {
-    if (user.googleId === googleId) {
-      return { id: user.id, email: user.email };
-    }
+  // Check by Google ID
+  let user = await collection.findOne({ googleId });
+  if (user) {
+    return { id: user.id, email: user.email };
   }
 
-  const existing = users.get(normalized);
-  if (existing) {
-    existing.googleId = googleId;
-    if (name) existing.name = name;
-    await writeUsers(users);
-    return { id: existing.id, email: existing.email };
+  // Check by Email
+  user = await collection.findOne({ email: normalized });
+  if (user) {
+    await collection.updateOne(
+      { email: normalized },
+      { $set: { googleId, ...(name ? { name } : {}) } }
+    );
+    return { id: user.id, email: user.email };
   }
 
-  const user: StoredUser = {
+  // Create new
+  const newUser: StoredUser = {
     id: crypto.randomUUID(),
     email: normalized,
     googleId,
@@ -107,15 +90,16 @@ export async function findOrCreateGoogleUser(
     createdAt: new Date().toISOString(),
   };
 
-  users.set(normalized, user);
-  await writeUsers(users);
-  return { id: user.id, email: user.email };
+  await collection.insertOne(newUser);
+  return { id: newUser.id, email: newUser.email };
 }
 
 export async function getUserById(id: string): Promise<SessionUser | null> {
-  const users = await readUsers();
-  for (const user of users.values()) {
-    if (user.id === id) return { id: user.id, email: user.email };
-  }
-  return null;
+  const { db } = await connectToDatabase();
+  const collection = db.collection<StoredUser>("users");
+
+  const user = await collection.findOne({ id });
+  if (!user) return null;
+
+  return { id: user.id, email: user.email };
 }

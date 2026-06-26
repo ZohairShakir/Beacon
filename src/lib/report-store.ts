@@ -1,20 +1,16 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
-import path from "path";
+import { connectToDatabase } from "./mongodb";
 import type { ScanReport } from "./types";
 
-const REPORTS_DIR = path.join(process.cwd(), ".data", "reports");
-
-async function ensureDir() {
-  await mkdir(REPORTS_DIR, { recursive: true });
-}
-
-function reportPath(id: string) {
-  return path.join(REPORTS_DIR, `${id}.json`);
-}
-
 export async function saveReport(report: ScanReport): Promise<void> {
-  await ensureDir();
-  await writeFile(reportPath(report.id), JSON.stringify(report), "utf-8");
+  const { db } = await connectToDatabase();
+  const collection = db.collection<ScanReport>("reports");
+
+  // Upsert the report by ID
+  await collection.updateOne(
+    { id: report.id },
+    { $set: report },
+    { upsert: true }
+  );
 }
 
 export async function getReport(id: string): Promise<ScanReport | null> {
@@ -31,10 +27,20 @@ export async function getReport(id: string): Promise<ScanReport | null> {
     }
   }
 
+  // Read directly from MongoDB
   try {
-    const raw = await readFile(reportPath(id), "utf-8");
-    return JSON.parse(raw) as ScanReport;
-  } catch {
+    const { db } = await connectToDatabase();
+    const collection = db.collection<ScanReport>("reports");
+    const report = await collection.findOne({ id });
+    
+    // MongoDB returns _id alongside the document fields, we delete it or cast to ScanReport
+    if (report) {
+      const { _id, ...rest } = report as any;
+      return rest as ScanReport;
+    }
+    return null;
+  } catch (e) {
+    console.error("Error reading report from MongoDB:", e);
     return null;
   }
 }
