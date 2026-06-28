@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const navLinks = [
   { label: "Features", href: "#features" },
   { label: "FAQ", href: "#faq" },
-  { label: "GitHub", href: "https://github.com", external: true },
+  { label: "GitHub", href: "https://github.com/ZohairShakir/beacon", external: true },
 ];
 
 export function Navbar() {

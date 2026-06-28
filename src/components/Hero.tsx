@@ -199,28 +199,35 @@ export function Hero() {
                   )}
 
                   {!user && usage && scansLeft >= 0 && (
-                    <p className="mt-3 text-xs text-beacon-gray">
-                      {scansLeft === 0 ? (
-                        <>
-                          No free scans left.{" "}
-                          <button
-                            type="button"
-                            onClick={() => setAuthOpen(true)}
-                            className="font-semibold text-foreground underline"
-                          >
-                            Sign up free
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-semibold text-foreground">
-                            {scansLeft}
-                          </span>{" "}
-                          of {FREE_SCAN_LIMIT} free scans — no credit card
-                        </>
-                      )}
-                    </p>
+                    <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs text-beacon-gray">
+                        {scansLeft === 0 ? (
+                          <>
+                            No free scans left.{" "}
+                            <button
+                              type="button"
+                              onClick={() => setAuthOpen(true)}
+                              className="font-semibold text-foreground underline"
+                            >
+                              Sign up free
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-semibold text-foreground">
+                              {scansLeft}
+                            </span>{" "}
+                            of {FREE_SCAN_LIMIT} free scans per day — no credit card
+                          </>
+                        )}
+                      </p>
+                    </div>
                   )}
+
+                  <p className="mt-3 flex items-center gap-1.5 text-xs text-beacon-gray">
+                    <Shield className="h-3.5 w-3.5 shrink-0 text-neutral-500" />
+                    <span>We never store your endpoint URLs or request payload data.</span>
+                  </p>
                 </motion.form>
               </div>
 
@@ -228,9 +235,17 @@ export function Hero() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.25 }}
-                className="relative mx-auto w-full max-w-[280px] min-w-0 sm:max-w-sm md:max-w-none"
+                className="relative mx-auto w-full max-w-[420px] min-w-0 overflow-hidden rounded-2xl border border-beacon-border bg-black shadow-lg"
               >
-                <HeroGraphic />
+                <video
+                  src="/beacon-demo.mp4"
+                  poster="/beaconlogo.svg"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="aspect-video w-full object-cover"
+                />
               </motion.div>
             </div>
 

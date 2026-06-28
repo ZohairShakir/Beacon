@@ -8,7 +8,7 @@ export function organizationJsonLd() {
     url: siteConfig.url,
     logo: `${siteConfig.url}/beacon-logo.svg`,
     description: siteConfig.description,
-    sameAs: ["https://github.com"],
+    sameAs: ["https://github.com/ZohairShakir/beacon"],
   };
 }
 

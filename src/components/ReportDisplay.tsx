@@ -149,7 +149,7 @@ export function ReportDisplay({
                   <AnimatedCounter value={report.overallScore} />
                   <span className="text-base font-semibold text-beacon-gray sm:text-lg">/100</span>
                 </p>
-                <span className="mt-1 inline-block rounded-full bg-beacon-lime px-3 py-1 text-xs font-bold uppercase">
+                <span className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-bold uppercase ${healthStyles[health.tone]}`}>
                   Grade {report.grade}
                 </span>
               </div>

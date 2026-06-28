@@ -78,7 +78,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/ZohairShakir/beacon"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-beacon-lime"
@@ -110,7 +110,7 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-4">
             <a
-              href="https://github.com"
+              href="https://github.com/ZohairShakir/beacon"
               aria-label="Beacon on GitHub"
               className="rounded text-beacon-gray hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-beacon-lime"
             >

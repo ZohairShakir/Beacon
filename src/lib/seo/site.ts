@@ -53,7 +53,7 @@ export const faqItems = [
   {
     question: "Is Beacon free to use?",
     answer:
-      "Yes. Beacon offers free API scans with no credit card required. You get several free scans before creating a free account for unlimited REST API testing and monitoring.",
+      "Yes. Beacon offers free API scans with no credit card required. You get 5 free scans per day before creating a free account for unlimited REST API testing and monitoring.",
   },
   {
     question: "What does the API score measure?",
